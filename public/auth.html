@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Acceder a NXDigital Gestor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            <section class="panel login-panel" id="login-container">
+                <div class="logo-container mb-6 justify-center">
+                    <img src="images/logo verde 3d.webp" alt="NXDigital Logo"> <span>NXDigital Gestor</span>
+                </div>
+                <h2>Iniciar Sesión</h2>
+                <form id="login-form">
+                    <div class="field">
+                        <label for="login-email">Email</label>
+                        <input id="login-email" name="email" type="email" autocomplete="username" placeholder="tu@negocio.com" required />
+                    </div>
+                    <div class="field">
+                        <label for="login-password">Contraseña</label>
+                        <input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="••••••••" required />
+                    </div>
+                    <button type="submit" class="btn">Entrar</button>
+                </form>
+                <p class="text-sm mt-4 text-center">¿No tienes cuenta?
+                    <span id="toggle-signup" class="link cursor-pointer">Regístrate</span>
+                </p>
+            </section>
+
+            <section class="panel signup-panel hidden" id="signup-container">
+                <div class="logo-container mb-6 justify-center">
+                    <img src="images/logo verde 3d.webp" alt="NXDigital Logo"> <span>NXDigital Gestor</span>
+                </div>
+                <h2>Crear Cuenta</h2>
+                <form id="signup-form">
+                    <div class="field">
+                        <label for="signup-email">Email</label>
+                        <input id="signup-email" name="email" type="email" placeholder="tu@negocio.com" required />
+                    </div>
+                    <div class="field">
+                        <label for="signup-password">Contraseña</label>
+                        <input id="signup-password" name="password" type="password" placeholder="••••••••" required />
+                    </div>
+                    <div class="field">
+                        <label for="business-name">Nombre de tu Negocio</label>
+                        <input id="business-name" name="businessName" type="text" placeholder="Ej. Peluquería Génesis" required />
+                    </div>
+                    <button type="submit" class="btn btn-outline">Crear Cuenta</button>
+                </form>
+                <p class="text-sm mt-4 text-center">¿Ya tienes cuenta?
+                    <span id="toggle-login" class="link cursor-pointer">Iniciar Sesión</span>
+                </p>
+            </section>
+        </div>
+    </div>
+
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/auth.js"></script>
+
+</body>
+</html>
