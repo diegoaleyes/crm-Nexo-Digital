@@ -4,18 +4,201 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Acceder a NXDigital Gestor</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="styles.css" />
+    <style>
+        /* Estilos globales y para el contenedor principal, ajustados al nuevo diseño */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #111827; /* Azul oscuro muy profundo */
+            color: #E2E8EB; /* Texto claro */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px; /* Padding general para evitar que se pegue a los bordes de la ventana */
+            box-sizing: border-box; /* Para que el padding no añada al ancho/alto total */
+        }
+        .auth-wrapper {
+            width: 480px;
+        }
+        .auth-card {
+            background-color: #1F2937; /* Fondo del formulario, un gris azulado más oscuro */
+            padding: 23px 65px; /* Padding interno generoso */
+            border-radius: 12px;
+            box-shadow: 0 10px 15px 8px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 440px; /* Un ancho máximo ajustado, más entre 400px y 480px */
+            /* Eliminamos 'height' o 'min-height' fijos para que se ajuste al contenido */
+            /* y sea más responsive. Si el contenido crece, el alto también lo hará */
+            text-align: center;
+            box-sizing: border-box; /* Asegura que el padding no infle el width */
+        }
+
+        /* Estilos para el logo y título */
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px; /* Espacio debajo del logo/título */
+        }
+
+        .logo-container img {
+            max-width: 90px; /* Tamaño del logo */
+            height: auto; /* Mantiene la proporción */
+            margin-bottom: 15px; /* Espacio entre el logo y el texto */
+        }
+
+        .logo-container span {
+            font-size: 1.8rem; /* Tamaño del texto "NXDigital Gestor" */
+            font-weight: 700;
+            color: #E2E8EB;
+        }
+
+        h2 {
+            font-size: 2rem; /* Títulos */
+            font-weight: 600;
+            color: #63B3ED;
+            margin-bottom: 30px; /* Espacio debajo del título del formulario */
+        }
+
+        /* Estilos para los campos de entrada */
+        .field {
+            margin-bottom: 20px; /* Espacio entre campos */
+            text-align: left;
+        }
+
+        .field label {
+            display: block;
+            margin-bottom: 8px; /* Espacio entre label e input */
+            font-weight: 600;
+            color: #CBD5E0;
+        }
+
+        .field input {
+            width: 100%;
+            padding: 12px 15px; /* Padding en los inputs */
+            border-radius: 8px;
+            border: 1px solid #4B5563;
+            background-color: #374151;
+            color: #E5E7EB;
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .field input:focus {
+            outline: none;
+            border-color: #4299E1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.3);
+        }
+
+        /* Estilo de botón tipo Firebase con menos blur (sin cambios importantes aquí) */
+        .btn-firebase {
+            display: inline-block;
+            padding: 12px 25px; /* Padding para los botones */
+            border-radius: 9999px;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+            border: 2px solid transparent;
+            background-color: #3B82F6;
+            color: #ffffff;
+            cursor: pointer;
+            outline: none;
+            width: 100%;
+            font-size: 1.1rem;
+            margin-top: 10px; /* Espacio arriba del botón */
+        }
+
+        .btn-firebase::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 9999px;
+            background: linear-gradient(45deg, #EF4444, #bb1ad4, #10B981, #3B82F6, #8B5CF6);
+            background-size: 300% 300%;
+            z-index: -1;
+            filter: blur(4px);
+            opacity: 0;
+            transition: opacity 0.3s ease, background-position 0.3s ease;
+        }
+
+        .btn-firebase:hover::before {
+            opacity: 1;
+            background-position: 100% 0%;
+        }
+
+        .btn-firebase:hover {
+            border-color: transparent;
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .btn-firebase:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        /* Estilo para el botón de "Crear Cuenta" (outline) */
+        .btn-firebase-outline {
+            background-color: transparent;
+            border-color: #63B3ED;
+            color: #63B3ED;
+        }
+        .btn-firebase-outline:hover {
+            background-color: rgba(99, 179, 237, 0.1);
+            color: #90CDF4;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .btn-firebase-outline::before {
+            display: none;
+        }
+
+
+        .panel {
+            transition: opacity 0.5s ease;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .text-sm {
+            margin-top: 25px; /* Espacio arriba del texto de "No tienes cuenta?" */
+            font-size: 0.95rem;
+            color: #9CA3AF;
+        }
+        .link {
+            color: #60A5FA;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        .link:hover {
+            color: #93C5FD;
+            text-decoration: underline;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+<body class="flex items-center justify-center min-h-screen">
 
     <div class="auth-wrapper">
         <div class="auth-card">
             <section class="panel login-panel" id="login-container">
-                <div class="logo-container mb-6 justify-center">
-                    <img src="images/logo verde 3d.webp" alt="NXDigital Logo"> <span>NXDigital Gestor</span>
+                <div class="logo-container">
+                    <img src="./images/logo multicolor web.webp" alt="NXDigital Logo"> 
+                    <span>NX-Digital CRM</span>
                 </div>
                 <h2>Iniciar Sesión</h2>
                 <form id="login-form">
@@ -27,7 +210,7 @@
                         <label for="login-password">Contraseña</label>
                         <input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="••••••••" required />
                     </div>
-                    <button type="submit" class="btn">Entrar</button>
+                    <button type="submit" class="btn-firebase">Entrar</button>
                 </form>
                 <p class="text-sm mt-4 text-center">¿No tienes cuenta?
                     <span id="toggle-signup" class="link cursor-pointer">Regístrate</span>
@@ -35,8 +218,9 @@
             </section>
 
             <section class="panel signup-panel hidden" id="signup-container">
-                <div class="logo-container mb-6 justify-center">
-                    <img src="images/logo verde 3d.webp" alt="NXDigital Logo"> <span>NXDigital Gestor</span>
+                <div class="logo-container">
+                    <img src="favicon logo multicolor.jpg" alt="NXDigital Logo"> 
+                    <span>NXDigital Gestor</span>
                 </div>
                 <h2>Crear Cuenta</h2>
                 <form id="signup-form">
@@ -52,7 +236,7 @@
                         <label for="business-name">Nombre de tu Negocio</label>
                         <input id="business-name" name="businessName" type="text" placeholder="Ej. Peluquería Génesis" required />
                     </div>
-                    <button type="submit" class="btn btn-outline">Crear Cuenta</button>
+                    <button type="submit" class="btn-firebase btn-firebase-outline">Crear Cuenta</button>
                 </form>
                 <p class="text-sm mt-4 text-center">¿Ya tienes cuenta?
                     <span id="toggle-login" class="link cursor-pointer">Iniciar Sesión</span>

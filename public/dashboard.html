@@ -4,71 +4,330 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard - NXDigital Gestor</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-   
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    
     <script src="https://cdn.tailwindcss.com"></script>
-     <link rel="stylesheet" href="styles.css" />
-</head>
-<body class="bg-gray-100 text-gray-800">
+    <style>
+        /* Estilos globales para el dashboard */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #111827; /* Fondo azul oscuro muy profundo */
+            color: #E2E8EB; /* Texto claro por defecto */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-    <header class="bg-white shadow-md fixed top-0 left-0 w-full z-50">
-        <div class="container mx-auto flex justify-between items-center px-4 py-3">
+        /* Cabecera oscura y limpia */
+        .header-dashboard {
+            background-color: #1F2937; /* Fondo de la cabecera */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: fixed; /* Mantiene la cabecera fija */
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 50; /* Para que esté por encima de otros elementos */
+        }
+
+        .header-dashboard .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-dashboard .logo-container img {
+            max-width: 45px; /* Tamaño del logo en la cabecera */
+            margin-right: 12px;
+        }
+
+        .header-dashboard .logo-container span {
+            font-size: 1.6rem; /* Tamaño del texto del título */
+            font-weight: 700;
+            color: #E2E8EB; /* Color de texto claro */
+        }
+
+        /* Estilo de botón tipo Firebase para "Añadir Nuevo Cliente" y "Entrar" en auth.html */
+        .btn-firebase {
+            display: inline-block;
+            padding: 10px 22px; /* Un poco menos de padding para el dashboard */
+            border-radius: 9999px; /* Bordes muy redondeados */
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+            border: 2px solid transparent; /* Borde transparente por defecto */
+            background-color: #3B82F6; /* Fondo azul estándar del botón */
+            color: #ffffff;
+            cursor: pointer;
+            outline: none;
+            font-size: 1rem; /* Tamaño de fuente normal */
+        }
+
+        .btn-firebase::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 9999px;
+            background: linear-gradient(45deg, #EF4444, #F59E0B, #10B981, #3B82F6, #8B5CF6); /* Colores vibrantes */
+            background-size: 300% 300%;
+            z-index: -1;
+            filter: blur(4px); /* Menos blur */
+            opacity: 0;
+            transition: opacity 0.3s ease, background-position 0.3s ease;
+        }
+
+        .btn-firebase:hover::before {
+            opacity: 1;
+            background-position: 100% 0%;
+        }
+
+        .btn-firebase:hover {
+            border-color: transparent; /* El borde "iluminado" toma el control */
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .btn-firebase:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        /* Botón de cerrar sesión (estilo outline para Firebase) */
+        .btn-firebase-outline {
+            background-color: transparent;
+            border-color: #63B3ED; /* Borde azul claro */
+            color: #63B3ED; /* Color de texto azul claro */
+            padding: 10px 20px; /* Ajusta el padding para que sea visualmente coherente */
+        }
+        .btn-firebase-outline:hover {
+            background-color: rgba(99, 179, 237, 0.1); /* Un ligero fondo azul transparente */
+            color: #90CDF4; /* Un azul más claro al hover */
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .btn-firebase-outline::before { /* Oculta el efecto de blur para el outline si no lo quieres aquí */
+            display: none;
+        }
+
+
+        /* Estilos para el contenido principal del dashboard */
+        .main-content {
+            padding-top: 100px; /* Espacio para la cabecera fija */
+            flex-grow: 1; /* Permite que el main crezca y empuje el footer hacia abajo */
+        }
+
+        .dashboard-section {
+            background-color: #1F2937; /* Fondo de la sección de clientes */
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada */
+            border: 1px solid rgba(255,255,255,0.1); /* Borde sutil claro */
+        }
+
+        .dashboard-section h2, .dashboard-section h3 {
+            color: #E2E8EB; /* Títulos blancos */
+        }
+
+        .dashboard-section p {
+            color: #CBD5E0; /* Párrafos más claros */
+        }
+
+        /* Estilos de la tabla */
+        .client-table {
+            min-width: 100%;
+            border-collapse: collapse; /* Elimina espacios entre celdas */
+            margin-top: 20px;
+        }
+
+        .client-table thead th {
+            background-color: #2D3748; /* Fondo de cabecera de tabla más oscuro */
+            color: #E2E8EB; /* Texto de cabecera blanco */
+            padding: 12px 15px;
+            text-align: left;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-bottom: 2px solid #4A5568; /* Borde inferior más oscuro */
+            border-top: 1px solid #4A5568; /* Borde superior */
+        }
+        .client-table thead th:first-child { border-top-left-radius: 8px; }
+        .client-table thead th:last-child { border-top-right-radius: 8px; }
+
+        .client-table tbody td {
+            background-color: #1F2937; /* Fondo de celdas del mismo color que la tarjeta */
+            color: #CBD5E0; /* Texto de celda claro */
+            padding: 12px 15px;
+            border-bottom: 1px solid #2D3748; /* Borde inferior de celda más oscuro */
+            font-size: 0.95rem;
+            vertical-align: top; /* Alinea el contenido de la celda arriba */
+        }
+        .client-table tbody tr:last-child td {
+            border-bottom: none; /* Elimina el borde inferior de la última fila */
+        }
+
+        /* Enlaces de acciones en la tabla */
+        .client-table a {
+            color: #63B3ED; /* Azul claro para enlaces */
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+        .client-table a:hover {
+            color: #90CDF4; /* Azul más claro al hover */
+            text-decoration: underline;
+        }
+        .client-table .text-red-500 {
+            color: #EF4444; /* Rojo para el botón Eliminar */
+        }
+        .client-table .text-red-500:hover {
+            color: #F87171; /* Rojo más claro al hover */
+        }
+
+        /* Estilos para el mensaje "Cargando clientes..." */
+        #clients-table-body td p {
+            color: #9CA3AF; /* Gris para el mensaje de carga/sin clientes */
+            padding: 20px;
+        }
+
+        /* Estilos del modal (popup) */
+        #client-modal {
+            background-color: rgba(0, 0, 0, 0.6); /* Fondo semi-transparente más oscuro */
+        }
+
+        #client-modal > div {
+            background-color: #1F2937; /* Fondo del modal */
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); /* Sombra más pronunciada */
+            padding: 30px; /* Padding interno */
+            position: relative;
+            max-width: 600px; /* Ajusta el ancho máximo del modal */
+            width: 100%; /* Asegura que ocupe el ancho disponible */
+            box-sizing: border-box;
+        }
+
+        #client-modal h3 {
+            color: #E2E8EB; /* Título del modal blanco */
+            font-size: 1.8rem; /* Tamaño de fuente del título del modal */
+            margin-bottom: 25px; /* Espacio debajo del título */
+        }
+
+        #client-modal .field label {
+            color: #CBD5E0; /* Labels de los campos del modal */
+        }
+
+        #client-modal .field input,
+        #client-modal .field textarea {
+            background-color: #374151; /* Fondo de inputs del modal */
+            border: 1px solid #4B5563; /* Borde de inputs del modal */
+            color: #E5E7EB; /* Color de texto de inputs del modal */
+            padding: 10px 12px;
+            border-radius: 8px;
+            width: 100%;
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        #client-modal .field input:focus,
+        #client-modal .field textarea:focus {
+            outline: none;
+            border-color: #4299E1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.3);
+        }
+        #client-modal .field textarea {
+            min-height: 80px; /* Altura mínima para el textarea de notas */
+            resize: vertical; /* Permite redimensionar verticalmente */
+        }
+        
+        #client-modal #close-client-modal-btn {
+            background: none;
+            border: none;
+            font-size: 2.5rem; /* Tamaño más grande para la 'X' */
+            color: #9CA3AF; /* Color gris suave */
+            cursor: pointer;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            transition: color 0.2s ease;
+        }
+        #client-modal #close-client-modal-btn:hover {
+            color: #CBD5E0; /* Color más claro al hover */
+        }
+
+        /* Botón de enviar formulario del modal (tipo Firebase) */
+        #modal-submit-btn {
+            font-size: 1.1rem; /* Un poco más grande que los botones normales del dashboard */
+            padding: 12px 25px;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #1F2937; /* Fondo del footer igual que la cabecera */
+            color: #E2E8EB;
+        }
+    </style>
+</head>
+<body class="flex flex-col">
+
+    <header class="header-dashboard py-3">
+        <div class="container mx-auto flex justify-between items-center px-4">
             <div class="logo-container">
-                <img src="images/logo multicolor web.webp" alt="NXDigital Logo"> <span>NXDigital Gestor</span>
+                <img src="./images/logo multicolor web.webp" alt="NXDigital Logo"> 
+                <span>NX-Digital</span>
             </div>
-            <button id="logout-btn" class="btn-outline text-gray-700 hover:text-blue-600 px-4 py-2 rounded-lg border border-gray-300 hover:border-blue-600 transition-colors">
-                Cerrar sesión
-            </button>
+            <button id="logout-btn" class="btn-firebase-outline">Cerrar sesión</button>
         </div>
     </header>
 
-    <main class="container mx-auto px-4 py-20">
-        <h2 class="text-3xl font-semibold text-gray-900 mb-6">¡Bienvenido a tu Gestor de Clientes!</h2>
-        <p class="text-lg text-gray-700 mb-8">Esta es tu área principal. Aquí podrás ver y gestionar todos los clientes de tu negocio.</p>
+    <main class="container mx-auto px-4 py-20 main-content">
+        <h2 class="text-3xl font-semibold mb-6">¡Bienvenido a tu Gestor de Clientes!</h2>
+        <p class="text-lg mb-8">Esta es tu área principal. Aquí podrás ver y gestionar todos los clientes de tu negocio.</p>
 
-        <section class="bg-white p-8 rounded-lg shadow-md">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-semibold text-gray-800">Tus Clientes</h3>
-                <button id="open-add-client-modal-btn" class="btn">Añadir Nuevo Cliente</button>
+        <section class="dashboard-section p-8 rounded-lg">
+            <div class="flex flex-wrap justify-between items-center mb-6">
+                <h3 class="text-2xl font-semibold mb-4 md:mb-0">Tus Clientes</h3>
+                <button id="open-add-client-modal-btn" class="btn-firebase">Añadir Nuevo Cliente</button>
             </div>
 
-            <div class="overflow-x-auto">
-                <table class="min-w-full bg-white border border-gray-200">
-                    <thead>
-                        <tr class="bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                            <th class="py-3 px-4 border-b-2 border-gray-200">Nombre</th>
-                            <th class="py-3 px-4 border-b-2 border-gray-200">Email</th>
-                            <th class="py-3 px-4 border-b-2 border-gray-200">Teléfono</th>
-                            <th class="py-3 px-4 border-b-2 border-gray-200">Empresa</th>
-                            <th class="py-3 px-4 border-b-2 border-gray-200 text-center">Acciones</th>
+            <div class="overflow-x-auto rounded-lg"> <table class="min-w-full client-table">
+                   <thead>
+                        <tr>
+                            <th class="py-2 px-4">NOMBRE</th>
+                            <th class="py-2 px-4">EMAIL</th>
+                            <th class="py-2 px-4">TELÉFONO</th>
+                            <th class="py-2 px-4">EMPRESA</th>
+                            <th class="py-2 px-4">NOTAS</th>
+                            <th class="py-2 px-4 text-center">ACCIONES</th>
                         </tr>
                     </thead>
-                    <tbody id="clients-table-body" class="text-gray-700">
+                    <tbody id="clients-table-body">
                         <tr>
-                            <td class="py-3 px-4 border-b border-gray-200 text-center" colspan="5">
-                                <p class="text-gray-500">Cargando clientes...</p>
+                            <td class="py-3 px-4 text-center" colspan="6"> <p>Cargando clientes...</p>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-            <p id="no-clients-message" class="text-gray-500 text-center mt-4 hidden">No hay clientes registrados aún. ¡Añade el primero!</p>
+            <p id="no-clients-message" class="text-center mt-4 hidden">No hay clientes registrados aún. ¡Añade el primero!</p>
         </section>
 
     </main>
 
-    <footer class="bg-gray-800 text-white py-6 mt-auto">
+    <footer class="py-6 mt-auto">
         <div class="container mx-auto px-4 text-center">
             <p>Tu futuro gestor de clientes.</p>
         </div>
     </footer>
 
-    <div id="client-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-lg shadow-xl max-w-lg w-full p-6 relative">
-            <button id="close-client-modal-btn" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
-            <h3 id="modal-title" class="text-2xl font-semibold text-gray-800 mb-6">Añadir Nuevo Cliente</h3>
+    <div id="client-modal" class="fixed inset-0 bg-opacity-50 flex items-center justify-center p-4 hidden">
+        <div class="rounded-lg shadow-xl w-full p-6 relative">
+            <button id="close-client-modal-btn">&times;</button>
+            <h3 id="modal-title" class="text-2xl font-semibold mb-6">Añadir Nuevo Cliente</h3>
             <form id="client-form">
-                <input type="hidden" id="client-id-hidden" /> <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <input type="hidden" id="client-id-hidden" /> 
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="field">
                         <label for="modal-client-name">Nombre Completo</label>
                         <input id="modal-client-name" name="name" type="text" placeholder="Ej. Juan Pérez" required />
@@ -90,7 +349,7 @@
                         <textarea id="modal-client-notes" name="notes" rows="3" placeholder="Información relevante sobre el cliente..."></textarea>
                     </div>
                 </div>
-                <button type="submit" class="btn mt-6 w-full" id="modal-submit-btn">Añadir Cliente</button>
+                <button type="submit" class="btn-firebase mt-6 w-full" id="modal-submit-btn">Añadir Cliente</button>
             </form>
         </div>
     </div>

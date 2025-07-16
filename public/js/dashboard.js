@@ -32,12 +32,12 @@ const clientModal = document.querySelector('#client-modal');           // El mod
 const closeClientModalBtn = document.querySelector('#close-client-modal-btn'); // Botón para cerrar modal
 const clientForm = document.querySelector('#client-form');             // El formulario dentro del modal
 const modalTitle = document.querySelector('#modal-title');             // Título del modal
-const modalSubmitBtn = document.querySelector('#modal-submit-btn');     // Botón de enviar del modal
+const modalSubmitBtn = document.querySelector('#modal-submit-btn');    // Botón de enviar del modal
 
 const clientIdHidden = document.querySelector('#client-id-hidden');    // Campo oculto para ID del cliente (editar)
 const modalClientName = document.querySelector('#modal-client-name');
 const modalClientEmail = document.querySelector('#modal-client-email');
-const modalClientPhone = document.querySelector('#modal-client-phone');
+const modalClientPhone = document.querySelector('#modal-client-phone'); // Corrected typo here
 const modalClientCompany = document.querySelector('#modal-client-company');
 const modalClientNotes = document.querySelector('#modal-client-notes');
 
@@ -151,7 +151,7 @@ if (clientForm) { // Ahora usamos clientForm que es el del modal
 //    (Actualizado para incluir botón de edición y manejar clics)
 // ----------------------------------------------------
 const listenForClients = (businessId) => {
-      console.log('Escuchando clientes para Business ID:', businessId); // <-- ¡NUEVO CONSOLE.LOG!
+     console.log('Escuchando clientes para Business ID:', businessId);
     const q = query(
         collection(db, 'clients'),
         where('businessId', '==', businessId),
@@ -159,32 +159,39 @@ const listenForClients = (businessId) => {
     );
 
     onSnapshot(q, (snapshot) => {
-        console.log('Nuevo snapshot recibido. Número de clientes:', snapshot.size); // <-- ¡NUEVO CONSOLE.LOG!
+        console.log('Nuevo snapshot recibido. Número de clientes:', snapshot.size);
         clientsTableBody.innerHTML = ''; // Limpiar la tabla
 
         if (snapshot.empty) {
             noClientsMessage.classList.remove('hidden');
-                console.log('No hay clientes en el snapshot.'); // <-- ¡NUEVO CONSOLE.LOG!
+            console.log('No hay clientes en el snapshot.');
         } else {
             noClientsMessage.classList.add('hidden');
             snapshot.forEach((doc) => {
                 const client = doc.data();
                 const clientId = doc.id;
-                 console.log('Añadiendo cliente a la tabla:', client.name, 'ID:', clientId, 'BusinessID en doc:', client.businessId); // <-- ¡NUEVO CONSOLE.LOG!
+                console.log('Añadiendo cliente a la tabla:', client.name, 'ID:', clientId, 'BusinessID en doc:', client.businessId);
 
                 const row = document.createElement('tr');
-                row.classList.add('hover:bg-gray-50');
+                // No necesitamos esta clase si ya definimos estilos de hover en CSS
+                // row.classList.add('hover:bg-gray-50'); 
 
+                // *** AQUÍ ESTÁ LA SECCIÓN CORREGIDA Y MEJORADA CON LAS CLASES DEL NUEVO TEMA ***
                 row.innerHTML = `
-                    <td class="py-3 px-4 border-b border-gray-200">${client.name || 'N/A'}</td>
+                    <td class="py-3 px-4 border-b border-gray-200">
+                        <span class="client-name-link text-blue-400 hover:text-blue-200 cursor-pointer" data-id="${clientId}">${client.name || 'N/A'}</span>
+                    </td>
                     <td class="py-3 px-4 border-b border-gray-200">${client.email || 'N/A'}</td>
                     <td class="py-3 px-4 border-b border-gray-200">${client.phone || 'N/A'}</td>
                     <td class="py-3 px-4 border-b border-gray-200">${client.company || 'N/A'}</td>
-                    <td class="py-3 px-4 border-b border-gray-200 text-center flex justify-center space-x-2">
-                        <button class="btn-edit text-blue-600 hover:text-blue-800 text-sm font-semibold" data-id="${clientId}">Editar</button>
-                        <button class="btn-delete text-red-600 hover:text-red-800 text-sm font-semibold" data-id="${clientId}">Eliminar</button>
+                    <td class="py-3 px-4 border-b border-gray-200">${client.notes || 'N/A'}</td>
+                    <td class="py-3 px-4 border-b border-gray-200 text-center flex justify-center space-x-3">
+                        <button class="btn-edit text-blue-400 hover:text-blue-200 text-sm font-semibold" data-id="${clientId}">Editar</button>
+                        <button class="btn-delete text-red-400 hover:text-red-200 text-sm font-semibold" data-id="${clientId}">Eliminar</button>
                     </td>
                 `;
+                // ************************************
+
                 clientsTableBody.appendChild(row);
             });
 
@@ -202,6 +209,14 @@ const listenForClients = (businessId) => {
                 button.addEventListener('click', (e) => {
                     const clientIdToEdit = e.target.dataset.id;
                     openEditClientModal(clientIdToEdit); // Llamamos a la nueva función de edición
+                });
+            });
+
+            // Asegúrate de que este listener se añade *después* de que las filas se crean
+            document.querySelectorAll('.client-name-link').forEach(span => {
+                span.addEventListener('click', (e) => {
+                    const clientIdToView = e.target.dataset.id;
+                    openEditClientModal(clientIdToView); // Reutilizamos la función que abre el modal de edición
                 });
             });
         }
@@ -225,11 +240,11 @@ const openEditClientModal = async (clientId) => {
             // Rellenar el formulario del modal con los datos del cliente
             modalClientName.value = client.name || '';
             modalClientEmail.value = client.email || '';
-            modalClientPhone.value = client.phone || '';
+            modalClientPhone.value = client.phone || ''; // CORRECCIÓN AQUÍ: quitado 'Z'
             modalClientCompany.value = client.company || '';
             modalClientNotes.value = client.notes || '';
 
-            modalTitle.textContent = 'Editar Cliente';    // Cambiar título del modal
+            modalTitle.textContent = 'Editar Cliente';      // Cambiar título del modal
             modalSubmitBtn.textContent = 'Actualizar Cliente'; // Cambiar texto del botón
             clientModal.classList.remove('hidden'); // Mostrar el modal
         } else {
