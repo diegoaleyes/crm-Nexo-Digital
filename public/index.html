@@ -1,147 +1,188 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NXDigital Gestor - Gestión de Clientes para PYMES</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* Importa la fuente Poppins para coherencia */
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NXDigital Gestor - Gestión de Clientes para PYMES</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #111827; /* Azul oscuro muy profundo, como el CRM */
-            color: #E2E8EB; /* Texto claro */
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #111827;
+      color: #E2E8EB;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
 
-        /* Cabecera oscura y limpia */
-        .header-main {
-            background-color: #1F2937; /* Fondo de la cabecera, un gris azulado más oscuro */
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
+    .header-main {
+      background-color: #1F2937;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
 
-        .header-main .logo-container {
-            display: flex;
-            align-items: center;
-        }
+    .logo-container {
+      display: flex;
+      align-items: center;
+    }
 
-        .header-main .logo-container img {
-            max-width: 70px; /* Tamaño del logo en la cabecera */
-            margin-right: 12px;
-        }
+    .logo-container img {
+      max-width: 70px;
+      margin-right: 12px;
+      /* box-shadow: 0 0 20px rgba(255, 215, 0, 0.4), 0 6px 18px rgba(0, 0, 0, 0.5); */
+      border-radius: 12px;
+    }
 
-        .header-main h1 {
-            font-size: 1.8rem; /* Ajuste el tamaño del título del logo */
-            font-weight: 700;
-            color: #E2E8EB; /* Color de texto claro para el título */
-        }
+    .header-main h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #E2E8EB;
+    }
 
-        /* Estilo de botón tipo Firebase (copiado de los mockups anteriores) */
-        .btn-firebase-main {
-            display: inline-block;
-            padding: 12px 28px; /* Un poco más de padding para el botón principal */
-            border-radius: 9999px; /* Bordes muy redondeados */
-            font-weight: 600;
-            text-align: center;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            position: relative;
-            z-index: 1;
-            overflow: hidden;
-            border: 2px solid transparent; /* Borde transparente por defecto */
-            background-color: #3B82F6; /* Fondo azul estándar del botón */
-            color: #ffffff;
-            cursor: pointer;
-            outline: none;
-            font-size: 1.1rem;
-        }
+    .btn-firebase-main {
+      display: inline-block;
+      padding: 12px 28px;
+      border-radius: 9999px;
+      font-weight: 600;
+      text-align: center;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 1;
+      overflow: hidden;
+      border: 2px solid transparent;
+      background-color: #3B82F6;
+      color: #ffffff;
+      cursor: pointer;
+      outline: none;
+      font-size: 1.1rem;
+      transform: scale(1);
+    }
 
-        .btn-firebase-main::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            border-radius: 9999px;
-            background: linear-gradient(45deg, #EF4444, #F59E0B, #10B981, #3B82F6, #8B5CF6); /* Colores vibrantes */
-            background-size: 300% 300%;
-            z-index: -1;
-            filter: blur(4px); /* MENOS BLUR para menos sombreado */
-            opacity: 0;
-            transition: opacity 0.3s ease, background-position 0.3s ease;
-        }
+    .btn-firebase-main::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      border-radius: 9999px;
+      background: linear-gradient(45deg, #EF4444, #F59E0B, #10B981, #3B82F6, #8B5CF6);
+      background-size: 300% 300%;
+      z-index: -1;
+      filter: blur(4px);
+      opacity: 0;
+      transition: opacity 0.3s ease, background-position 0.3s ease;
+    }
 
-        .btn-firebase-main:hover::before {
-            opacity: 1;
-            background-position: 100% 0%;
-        }
+    .btn-firebase-main:hover::before {
+      opacity: 1;
+      background-position: 100% 0%;
+    }
 
-        .btn-firebase-main:hover {
-            border-color: transparent; /* El borde "iluminado" toma el control */
-            color: #ffffff;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
-        .btn-firebase-main:active {
-            transform: translateY(0);
-            box-shadow: none;
-        }
+    .btn-firebase-main:hover {
+      border-color: transparent;
+      color: #ffffff;
+      transform: scale(1.05) translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
 
-        /* Estilos específicos para la hero section del index */
-        .hero-section h2 {
-            color: #E2E8EB; /* Títulos blancos para el fondo oscuro */
-        }
-        .hero-section p {
-            color: #CBD5E0; /* Texto de párrafo más claro */
-        }
-        .hero-section .text-sm {
-            color: #9CA3AF; /* Texto de copyright más sutil */
-        }
+    .btn-firebase-main:active {
+      transform: scale(1);
+      box-shadow: none;
+    }
 
-        /* Ajuste para el footer si no usa Tailwind completo */
-        footer {
-            background-color: #1F2937; /* Fondo del footer igual que la cabecera */
-            color: #E2E8EB;
-        }
-    </style>
+    .hero-section {
+      background:
+        linear-gradient(rgba(17,24,39,0.7), rgba(17,24,39,0.7)),
+        url('./images/hero background mujer escritorio dibujo.png') no-repeat right center / contain;
+    
+      min-height: 75vh;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 4rem 2rem;
+      position: relative;
+    }
+
+    .hero-section .container {
+      max-width: 700px;
+      padding-left: 1rem;
+      z-index: 1;
+    }
+
+    .hero-section h2 {
+      color: #E2E8EB;
+    }
+
+    .hero-section p {
+      color: #CBD5E0;
+    }
+
+    .hero-section .text-sm {
+      color: #9CA3AF;
+    }
+
+    .hero-section > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (max-width: 768px) {
+      .hero-section {
+        background-position: center bottom;
+        background-size: cover;
+        padding: 3rem 1rem;
+        text-align: center;
+      }
+
+      .hero-section .container {
+        max-width: 100%;
+        padding-left: 0;
+      }
+    }
+
+    footer {
+      background-color: #1F2937;
+      color: #E2E8EB;
+    }
+  </style>
 </head>
 <body class="flex flex-col min-h-screen">
 
-    <header class="header-main py-4">
-        <div class="container mx-auto px-4 flex justify-between items-center">
-            <div class="logo-container">
-                <img src="./images/logo multicolor web.webp" alt="NXDigital Gestor Logo"> 
-                <h1>NXDigital Gestor</h1>
-            </div> 
-            <nav>
-                <a href="auth.html" class="btn-firebase-main px-6 py-2 text-base">Acceder / Registrarse</a>
-            </nav>
-        </div>
-    </header>
+  <header class="header-main py-4">
+    <div class="container mx-auto px-4 flex justify-between items-center">
+      <div class="logo-container">
+        <img src="./images/logo multicolor transparent con sombra.png" alt="NXDigital Gestor Logo">
+        <h1>NX-Digital CRM</h1>
+      </div>
+      <nav>
+        <a href="auth.html" class="btn-firebase-main px-6 py-2 text-base">Acceder / Registrarse</a>
+      </nav>
+    </div>
+  </header>
 
-    <main class="flex-grow container mx-auto px-4 py-16 flex flex-col items-center justify-center text-center hero-section">
-        <h2 class="text-4xl font-extrabold mb-6">Simplifica la Gestión de Tus Clientes</h2>
-        <p class="text-xl mb-8 max-w-2xl">
-            NXDigital Gestor es la solución intuitiva para pequeñas y medianas empresas que buscan organizar, visualizar y entender mejor a sus clientes.
-        </p>
-        <div class="space-x-4">
-            <a href="auth.html" class="btn-firebase-main text-lg px-8 py-3">Empezar Ahora</a>
-        </div>
-        <div class="mt-12 text-sm">
-            <p>&copy; 2025 NXDigital Gestor. Creado por Diego para PYMES como la tuya.</p>
-        </div>
-    </main>
+  <main class="flex-grow hero-section">
+    <div class="container">
+      <h2 class="text-4xl font-extrabold mb-6">Simplifica la Gestión de Tus Clientes</h2>
+      <p class="text-xl mb-8 max-w-2xl">
+        Organiza tu negocio. Conecta con tus clientes. Crece sin complicaciones.
+      </p>
+      <div class="space-x-4">
+        <a href="auth.html" class="btn-firebase-main text-lg px-8 py-3">Empezar Ahora</a>
+      </div>
+      <div class="mt-12 text-sm">
+        <p>&copy; 2025 NXDigital Gestor. Creado por Diego para PYMES como la tuya.</p>
+      </div>
+    </div>
+  </main>
 
-    <footer class="py-6 mt-auto">
-        <div class="container mx-auto px-4 text-center">
-            <p>Tu futuro gestor de clientes.</p>
-        </div>
-    </footer>
+  <footer class="py-6 mt-auto">
+    <div class="container mx-auto px-4 text-center">
+      <p>Tu futuro gestor de clientes.</p>
+    </div>
+  </footer>
 
 </body>
 </html>
