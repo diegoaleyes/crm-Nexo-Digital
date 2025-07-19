@@ -398,8 +398,8 @@
         </div>
     </div>
 
-    <script type="module" src="js/firebase-config.js"></script>
-    <script type="module" src="js/dashboard.js"></script>
+    <script type="" src="js/firebase-config.js"></script>
+    <script type="" src="js/dashboard.js"></script>
 <!-- PANEL DESLIZANTE DE CITA -->
 <div id="appointment-panel" class="fixed top-0 right-0 h-full w-full max-w-md bg-gray-900 text-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50">
   <div class="p-6 flex flex-col h-full overflow-y-auto">
@@ -427,6 +427,132 @@
       </div>
       <button type="submit" class="btn-firebase w-full">Guardar Cita</button>
     </form>
+  </div>
+</div>
+</section>
+
+    </main>
+
+    <footer class="py-6 mt-auto">
+        <div class="container mx-auto px-4 text-center">
+            <p>Tu futuro gestor de clientes.</p>
+        </div>
+    </footer>
+
+    <div id="client-modal" class="fixed inset-0 bg-opacity-50 flex items-center justify-center p-4 hidden">
+        <div class="rounded-lg shadow-xl w-full p-6 relative">
+            <button id="close-client-modal-btn">&times;</button>
+            <h3 id="modal-title" class="text-2xl font-semibold mb-6">Añadir Nuevo Cliente</h3>
+            <form id="client-form">
+                <input type="hidden" id="client-id-hidden" /> 
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="field">
+                        <label for="modal-client-name">Nombre Completo</label>
+                        <input id="modal-client-name" name="name" type="text" placeholder="Ej. Juan Pérez" required />
+                    </div>
+                    <div class="field">
+                        <label for="modal-client-email">Email</label>
+                        <input id="modal-client-email" name="email" type="email" placeholder="juan.perez@ejemplo.com" />
+                    </div>
+                    <div class="field">
+                        <label for="modal-client-phone">Teléfono</label>
+                        <input id="modal-client-phone" name="phone" type="tel" placeholder="Ej. +34 600 123 456" />
+                    </div>
+                    <div class="field">
+                        <label for="modal-client-company">Empresa (Opcional)</label>
+                        <input id="modal-client-company" name="company" type="text" placeholder="Ej. Mi Empresa S.L." />
+                    </div>
+                    <div class="field md:col-span-2">
+                        <label for="modal-client-notes">Notas Adicionales</label>
+                        <textarea id="modal-client-notes" name="notes" rows="3" placeholder="Información relevante sobre el cliente..."></textarea>
+                    </div>
+                </div>
+                <button type="submit" class="btn-firebase mt-6 w-full" id="modal-submit-btn">Añadir Cliente</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="js/firebase-config.js"></script>
+<script type="module" src="js/dashboard.js"></script>
+
+<!-- PANEL DESLIZANTE DE CITA -->
+<div id="appointment-panel" class="fixed top-0 right-0 h-full w-full max-w-md bg-gray-900 text-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50">
+  <div class="p-6 flex flex-col h-full overflow-y-auto">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-xl font-semibold">Agendar Cita</h3>
+      <button id="close-appointment-panel" class="text-2xl text-gray-400 hover:text-white">&times;</button>
+    </div>
+    <form id="appointment-form" class="space-y-4">
+      <input type="hidden" id="appointment-client-id" />
+      <div>
+        <label for="appointment-date" class="block mb-1">Fecha y Hora</label>
+        <input type="datetime-local" id="appointment-date" required class="w-full bg-gray-700 text-white p-2 rounded-lg" />
+      </div>
+      <div>
+        <label for="appointment-type" class="block mb-1">Tipo de cita</label>
+        <input type="text" id="appointment-type" placeholder="Reunión, llamada, etc." class="w-full bg-gray-700 text-white p-2 rounded-lg" />
+      </div>
+      <div>
+        <label for="appointment-location" class="block mb-1">Ubicación</label>
+        <input type="text" id="appointment-location" placeholder="Virtual, oficina..." class="w-full bg-gray-700 text-white p-2 rounded-lg" />
+      </div>
+      <div>
+        <label for="appointment-notes" class="block mb-1">Notas</label>
+        <textarea id="appointment-notes" rows="3" class="w-full bg-gray-700 text-white p-2 rounded-lg"></textarea>
+      </div>
+      <button type="submit" class="btn-firebase w-full">Guardar Cita</button>
+    </form>
+  </div>
+</div>
+
+<!-- 🧩 MODAL DE FICHA DE CLIENTE -->
+<div id="client-info-panel" class="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50 hidden">
+  <div class="bg-gray-900 w-full max-w-4xl p-6 rounded-lg shadow-lg overflow-y-auto max-h-[90vh] relative">
+    <button id="close-client-info-panel" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">&times;</button>
+    
+    <h2 class="text-2xl font-semibold mb-4 text-blue-300">Ficha del Cliente</h2>
+
+    <!-- Datos básicos -->
+    <div class="grid grid-cols-2 gap-4 mb-6">
+      <div><strong class="text-gray-300">Nombre:</strong> <span id="info-name" class="text-white"></span></div>
+      <div><strong class="text-gray-300">Email:</strong> <span id="info-email" class="text-white"></span></div>
+      <div><strong class="text-gray-300">Teléfono:</strong> <span id="info-phone" class="text-white"></span></div>
+      <div><strong class="text-gray-300">Empresa:</strong> <span id="info-company" class="text-white"></span></div>
+      <div><strong class="text-gray-300">Domicilio:</strong> <span id="info-address" class="text-white"></span></div>
+      <div><strong class="text-gray-300">DNI/CIF:</strong> <span id="info-dni" class="text-white"></span></div>
+    </div>
+
+    <!-- Notas -->
+    <div class="mb-6">
+      <strong class="text-gray-300">Notas:</strong>
+      <p id="info-notes" class="text-gray-400 mt-2"></p>
+    </div>
+
+    <!-- Documentos -->
+    <div class="mb-6">
+      <strong class="text-gray-300">Documentos:</strong>
+      <div id="info-documents" class="mt-2 space-y-2">
+        <!-- Links a PDFs se insertan aquí -->
+      </div>
+      <input type="file" id="upload-client-doc" class="mt-4 text-white">
+      <button id="upload-client-doc-btn" class="mt-2 bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded text-white">Subir documento PDF</button>
+    </div>
+
+    <!-- Agenda -->
+    <div class="mb-6">
+      <strong class="text-gray-300">Citas:</strong>
+      <div id="info-appointments" class="mt-2 space-y-4">
+        <!-- Citas del cliente se muestran aquí -->
+      </div>
+    </div>
+
+    <!-- Campañas -->
+    <div class="mb-6">
+      <strong class="text-gray-300">Campañas asociadas:</strong>
+      <div id="info-campaigns" class="text-gray-400 mt-2">
+        <!-- Etiquetas o campañas asociadas -->
+      </div>
+    </div>
   </div>
 </div>
 

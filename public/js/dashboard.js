@@ -19,7 +19,8 @@ import {
     deleteDoc,  // Para eliminar un documento
     doc,        // Para hacer referencia a un documento específico
     getDoc,     // Para obtener un documento por su ID
-    updateDoc   // Para actualizar un documento existente
+    updateDoc,   // Para actualizar un documento existente
+     getDocs // ⬅️ ESTA LÍNEA DEBE ESTAR
 } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js';
 
 
@@ -61,6 +62,8 @@ onAuthStateChanged(auth, async (user) => {
 
         // Llama a la función para cargar y escuchar los clientes
         listenForClients(currentBusinessId);
+        console.log("📡 Ejecutando listenForClients...");
+
         listenForAppointments(); // ← activa la carga visual de citas
 
     }
@@ -148,92 +151,6 @@ if (clientForm) { // Ahora usamos clientForm que es el del modal
 }
 
 
-// ----------------------------------------------------
-// 5. LÓGICA PARA LISTAR CLIENTES EN TIEMPO REAL (onSnapshot)
-//    (Actualizado para incluir botón de edición y manejar clics)
-// ----------------------------------------------------
-const listenForClients = (businessId) => {
-     console.log('Escuchando clientes para Business ID:', businessId);
-    const q = query(
-        collection(db, 'clients'),
-        where('businessId', '==', businessId),
-        orderBy('createdAt', 'desc')
-    );
-
-    onSnapshot(q, (snapshot) => {
-        console.log('Nuevo snapshot recibido. Número de clientes:', snapshot.size);
-        clientsTableBody.innerHTML = ''; // Limpiar la tabla
-
-        if (snapshot.empty) {
-            noClientsMessage.classList.remove('hidden');
-            console.log('No hay clientes en el snapshot.');
-        } else {
-            noClientsMessage.classList.add('hidden');
-            snapshot.forEach((doc) => {
-                const client = doc.data();
-                const clientId = doc.id;
-                console.log('Añadiendo cliente a la tabla:', client.name, 'ID:', clientId, 'BusinessID en doc:', client.businessId);
-
-                const row = document.createElement('tr');
-                // No necesitamos esta clase si ya definimos estilos de hover en CSS
-                // row.classList.add('hover:bg-gray-50'); 
-
-                // *** AQUÍ ESTÁ LA SECCIÓN CORREGIDA Y MEJORADA CON LAS CLASES DEL NUEVO TEMA ***
-                row.innerHTML = `
-                    <td class="py-3 px-4 border-b border-gray-200">
-                        <span class="client-name-link text-blue-400 hover:text-blue-200 cursor-pointer" data-id="${clientId}">${client.name || 'N/A'}</span>
-                    </td>
-                    <td class="py-3 px-4 border-b border-gray-200">${client.email || 'N/A'}</td>
-                    <td class="py-3 px-4 border-b border-gray-200">${client.phone || 'N/A'}</td>
-                    <td class="py-3 px-4 border-b border-gray-200">${client.company || 'N/A'}</td>
-                    <td class="py-3 px-4 border-b border-gray-200">${client.notes || 'N/A'}</td>
-                    <td class="py-3 px-4 border-b border-gray-200 text-center flex justify-center space-x-3">
-                        <button class="btn-edit text-blue-400 hover:text-blue-200 text-sm font-semibold" data-id="${clientId}">Editar</button>
-                          <button class="btn-appointment text-green-400 hover:text-green-200 text-sm font-semibold" data-id="${clientId}">Agendar</button>
-                        <button class="btn-delete text-red-400 hover:text-red-200 text-sm font-semibold" data-id="${clientId}">Eliminar</button>
-                    </td>
-                `;
-                // ************************************
-
-                clientsTableBody.appendChild(row);
-            });
-
-            // Añadir event listeners a los botones de eliminar y editar
-            document.querySelectorAll('.btn-delete').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const clientIdToDelete = e.target.dataset.id;
-                    if (confirm('¿Estás seguro de que quieres eliminar este cliente?')) {
-                        deleteClient(clientIdToDelete);
-                    }
-                });
-            });
-
-            document.querySelectorAll('.btn-edit').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const clientIdToEdit = e.target.dataset.id;
-                    openEditClientModal(clientIdToEdit); // Llamamos a la nueva función de edición
-                });
-            });
-
-            // Asegúrate de que este listener se añade *después* de que las filas se crean
-            document.querySelectorAll('.client-name-link').forEach(span => {
-                span.addEventListener('click', (e) => {
-                    const clientIdToView = e.target.dataset.id;
-                    openEditClientModal(clientIdToView); // Reutilizamos la función que abre el modal de edición
-                });
-            });
-
-                document.querySelectorAll('.btn-appointment').forEach(button => {
-            button.addEventListener('click', (e) => {
-            const clientIdToAppoint = e.target.dataset.id;
-        openAppointmentPanel(clientIdToAppoint);
-                });
-            });
-
-        }
-    });
-};
-
 
 // ----------------------------------------------------
 // 6. LÓGICA PARA ABRIR MODAL EN MODO EDICIÓN Y PRE-LLENAR DATOS
@@ -268,6 +185,125 @@ const openEditClientModal = async (clientId) => {
     }
 };
 
+// === FICHA DETALLADA DEL CLIENTE (MODAL INFO) ===
+
+const clientInfoPanel = document.querySelector('#client-info-panel');
+const closeClientInfoPanelBtn = document.querySelector('#close-client-info-panel');
+
+function openClientInfoPanel(clientId) {
+    window.activeClientId = clientId;
+
+  const clientRef = doc(db, 'clients', clientId);
+  getDoc(clientRef).then(clientSnap => {
+    if (!clientSnap.exists()) return alert('Cliente no encontrado.');
+
+    const client = clientSnap.data();
+
+    // Rellenar datos básicos
+    document.querySelector('#info-name').textContent     = client.name     || '';
+    document.querySelector('#info-email').textContent    = client.email    || '';
+    document.querySelector('#info-phone').textContent    = client.phone    || '';
+    document.querySelector('#info-company').textContent  = client.company  || '';
+    document.querySelector('#info-address').textContent  = client.address  || '—';
+    document.querySelector('#info-dni').textContent      = client.dni      || '—';
+    document.querySelector('#info-notes').textContent    = client.notes    || 'Sin notas';
+
+    // Documentos (ej: contrato PDF)
+    const docContainer = document.querySelector('#info-documents');
+    docContainer.innerHTML = '';
+    if (client.contractUrl) {
+      const link = document.createElement('a');
+      link.href = client.contractUrl;
+      link.target = '_blank';
+      link.className = 'text-green-400 hover:text-green-200 underline block';
+      link.textContent = '📄 Ver contrato PDF';
+      docContainer.appendChild(link);
+    }
+
+    // Citas del cliente
+    const q = query(collection(db, 'appointments'), where('clientId', '==', clientId));
+    getDocs(q).then(snapshot => {
+      const apptContainer = document.querySelector('#info-appointments');
+      apptContainer.innerHTML = '';
+      snapshot.forEach(doc => {
+        const appt = doc.data();
+        const apptDate = new Date(appt.date);
+        const formatted = apptDate.toLocaleDateString('es-ES', {
+          weekday: 'short',
+          day: 'numeric',
+          month: 'short',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        const div = document.createElement('div');
+        div.className = 'text-gray-300';
+        div.textContent = `${formatted} — ${appt.type || 'Cita'} — ${appt.location || 'Sin ubicación'}`;
+        apptContainer.appendChild(div);
+      });
+    });
+
+    // Campaña asociada
+    document.querySelector('#info-campaigns').textContent = client.campaign || '—';
+
+    // Mostrar el panel
+    clientInfoPanel.classList.remove('hidden');
+  });
+}
+
+// Cerrar el panel
+closeClientInfoPanelBtn?.addEventListener('click', () => {
+  clientInfoPanel.classList.add('hidden');
+});
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL
+} from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-storage.js';
+
+const storage = getStorage();
+
+document.querySelector('#upload-client-doc-btn')?.addEventListener('click', async () => {
+  const fileInput = document.querySelector('#upload-client-doc');
+  const file = fileInput?.files[0];
+  const clientId = window.activeClientId;
+
+
+  if (!file || !clientId) {
+    alert('Selecciona un archivo PDF y asegurate de tener un cliente válido.');
+    return;
+  }
+
+  if (file.type !== 'application/pdf') {
+    alert('Solo se permiten archivos PDF.');
+    return;
+  }
+
+  try {
+    const storageRef = ref(storage, `contracts/${clientId}.pdf`);
+    await uploadBytes(storageRef, file);
+    const url = await getDownloadURL(storageRef);
+
+    // Guardamos el enlace en Firestore
+    const clientRef = doc(db, 'clients', clientId);
+    await updateDoc(clientRef, { contractUrl: url });
+
+    // Mostrar en ficha
+    const docContainer = document.querySelector('#info-documents');
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_blank';
+    link.className = 'text-green-400 hover:text-green-200 underline block';
+    link.textContent = '📄 Ver contrato PDF';
+    docContainer.innerHTML = ''; // Opcional si reemplazás
+    docContainer.appendChild(link);
+
+    alert('Documento subido correctamente.');
+  } catch (err) {
+    console.error('Error al subir documento:', err);
+    alert('Error al subir documento: ' + err.message);
+  }
+});
 
 // ----------------------------------------------------
 // 7. LÓGICA PARA ELIMINAR UN CLIENTE (sin cambios, solo reordenado)
@@ -484,3 +520,78 @@ filterDateSelect?.addEventListener('change', () => {
 });
 
 
+// ----------------------------------------------------
+// 5. LÓGICA PARA LISTAR CLIENTES EN TIEMPO REAL
+// ----------------------------------------------------
+function listenForClients(businessId) {
+  const q = query(
+    collection(db, 'clients'),
+    where('businessId', '==', businessId),
+    orderBy('createdAt', 'desc')
+  );
+
+  onSnapshot(q, (snapshot) => {
+    clientsTableBody.innerHTML = '';
+
+    if (snapshot.empty) {
+      noClientsMessage.classList.remove('hidden');
+    } else {
+      noClientsMessage.classList.add('hidden');
+
+      snapshot.forEach((doc) => {
+        const client = doc.data();
+        const clientId = doc.id;
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="py-3 px-4 border-b border-gray-200">
+            <span class="client-name-link text-blue-400 hover:text-blue-200 cursor-pointer" data-id="${clientId}">
+              ${client.name || 'N/A'}
+            </span>
+          </td>
+          <td class="py-3 px-4 border-b border-gray-200">${client.email || 'N/A'}</td>
+          <td class="py-3 px-4 border-b border-gray-200">${client.phone || 'N/A'}</td>
+          <td class="py-3 px-4 border-b border-gray-200">${client.company || 'N/A'}</td>
+          <td class="py-3 px-4 border-b border-gray-200">${client.notes || 'N/A'}</td>
+          <td class="py-3 px-4 border-b border-gray-200 text-center flex justify-center space-x-3">
+            <button class="btn-edit text-blue-400 hover:text-blue-200 text-sm font-semibold" data-id="${clientId}">Editar</button>
+            <button class="btn-appointment text-green-400 hover:text-green-200 text-sm font-semibold" data-id="${clientId}">Agendar</button>
+            <button class="btn-delete text-red-400 hover:text-red-200 text-sm font-semibold" data-id="${clientId}">Eliminar</button>
+          </td>
+        `;
+
+        clientsTableBody.appendChild(row);
+      });
+
+      document.querySelectorAll('.btn-edit').forEach(button => {
+        button.addEventListener('click', (e) => {
+          const clientId = e.target.dataset.id;
+          openEditClientModal(clientId);
+        });
+      });
+
+      document.querySelectorAll('.btn-delete').forEach(button => {
+        button.addEventListener('click', (e) => {
+          const clientId = e.target.dataset.id;
+          if (confirm('¿Eliminar este cliente?')) {
+            deleteClient(clientId);
+          }
+        });
+      });
+
+      document.querySelectorAll('.btn-appointment').forEach(button => {
+        button.addEventListener('click', (e) => {
+          const clientId = e.target.dataset.id;
+          openAppointmentPanel(clientId);
+        });
+      });
+
+      document.querySelectorAll('.client-name-link').forEach(span => {
+        span.addEventListener('click', (e) => {
+          const clientId = e.target.dataset.id;
+          openClientInfoPanel(clientId);
+        });
+      });
+    }
+  });
+}
