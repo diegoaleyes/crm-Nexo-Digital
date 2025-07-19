@@ -61,6 +61,8 @@ onAuthStateChanged(auth, async (user) => {
 
         // Llama a la función para cargar y escuchar los clientes
         listenForClients(currentBusinessId);
+        listenForAppointments(); // ← activa la carga visual de citas
+
     }
 });
 
@@ -187,6 +189,7 @@ const listenForClients = (businessId) => {
                     <td class="py-3 px-4 border-b border-gray-200">${client.notes || 'N/A'}</td>
                     <td class="py-3 px-4 border-b border-gray-200 text-center flex justify-center space-x-3">
                         <button class="btn-edit text-blue-400 hover:text-blue-200 text-sm font-semibold" data-id="${clientId}">Editar</button>
+                          <button class="btn-appointment text-green-400 hover:text-green-200 text-sm font-semibold" data-id="${clientId}">Agendar</button>
                         <button class="btn-delete text-red-400 hover:text-red-200 text-sm font-semibold" data-id="${clientId}">Eliminar</button>
                     </td>
                 `;
@@ -219,6 +222,14 @@ const listenForClients = (businessId) => {
                     openEditClientModal(clientIdToView); // Reutilizamos la función que abre el modal de edición
                 });
             });
+
+                document.querySelectorAll('.btn-appointment').forEach(button => {
+            button.addEventListener('click', (e) => {
+            const clientIdToAppoint = e.target.dataset.id;
+        openAppointmentPanel(clientIdToAppoint);
+                });
+            });
+
         }
     });
 };
@@ -288,3 +299,188 @@ if (logoutBtn) {
         }
     });
 }
+// === NUEVO BLOQUE, AL FINAL DE dashboard.js ===
+async function createAppointment(clientId, date, type, location, notes) {
+  try {
+    await addDoc(collection(db, 'appointments'), {
+      clientId,
+      businessId: currentBusinessId,
+      date,
+      type,
+      location,
+      notes,
+      createdAt: new Date()
+    });
+    alert('Cita guardada correctamente.');
+  } catch (err) {
+    console.error('Error al guardar cita:', err);
+    alert('Error al guardar cita: ' + err.message);
+  }
+}
+
+// === PANEL DESLIZANTE PARA AGENDAR CITA ===
+
+// Elementos del panel
+const appointmentPanel = document.querySelector('#appointment-panel');
+const closeAppointmentPanelBtn = document.querySelector('#close-appointment-panel');
+const appointmentForm = document.querySelector('#appointment-form');
+const appointmentClientId = document.querySelector('#appointment-client-id');
+
+// Abrir el panel para un cliente específico
+function openAppointmentPanel(clientId) {
+  appointmentPanel.classList.remove('translate-x-full');
+  appointmentClientId.value = clientId;
+}
+
+// Cerrar el panel
+if (closeAppointmentPanelBtn) {
+  closeAppointmentPanelBtn.addEventListener('click', () => {
+    appointmentPanel.classList.add('translate-x-full');
+    appointmentForm.reset();
+  });
+}
+
+// Guardar la cita en Firebase
+if (appointmentForm) {
+  appointmentForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const clientId = appointmentClientId.value;
+    const date = appointmentForm.querySelector('#appointment-date').value;
+    const type = appointmentForm.querySelector('#appointment-type').value;
+    const location = appointmentForm.querySelector('#appointment-location').value;
+    const notes = appointmentForm.querySelector('#appointment-notes').value;
+
+    if (!clientId || !date) {
+      alert('Completa los campos obligatorios.');
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, 'appointments'), {
+        clientId,
+        businessId: currentBusinessId,
+        date,
+        type,
+        location,
+        notes,
+        createdAt: new Date()
+      });
+
+      alert('Cita guardada correctamente.');
+      appointmentForm.reset();
+      appointmentPanel.classList.add('translate-x-full');
+    } catch (err) {
+      console.error('Error al guardar cita:', err);
+      alert('Error al guardar cita: ' + err.message);
+    }
+  });
+}
+// === AGENDA VISUAL MEJORADA ===
+
+const filterDateSelect   = document.querySelector('#filter-date');
+const filterTypeSelect   = document.querySelector('#filter-type');
+const clearClientBtn     = document.querySelector('#clear-client-filter');
+const appointmentsList   = document.querySelector('#appointments-list');
+let   selectedClientId   = null; // guardará si filtrás por cliente
+
+filterDateSelect?.addEventListener('change', listenForAppointments);
+filterTypeSelect?.addEventListener('change', listenForAppointments);
+
+clearClientBtn?.addEventListener('click', () => {
+  selectedClientId = null;          // Limpias filtro de cliente
+  listenForAppointments();          // Vuelves a cargar todas las citas
+});
+
+function getTypeColor(type) {
+  const map = {
+    Reunión: 'bg-green-700',
+    Llamada: 'bg-yellow-700',
+    Visita: 'bg-purple-700'
+  };
+  return map[type] || 'bg-blue-700';
+}
+
+function listenForAppointments() {
+  if (!appointmentsList || !currentBusinessId) return;
+
+  const q = query(
+    collection(db, 'appointments'),
+    where('businessId', '==', currentBusinessId),
+    orderBy('date', 'asc')
+  );
+
+  onSnapshot(q, (snapshot) => {
+    const filter = filterDateSelect?.value || 'all';
+    const today = new Date();
+    const weekFromNow = new Date();
+    weekFromNow.setDate(today.getDate() + 7);
+
+    appointmentsList.innerHTML = '';
+
+    const filteredDocs = snapshot.docs.filter(doc => {
+      const appt = doc.data();
+      const apptDate = new Date(appt.date);
+
+      if (filter === 'today') {
+        return apptDate.toDateString() === today.toDateString();
+      } else if (filter === 'week') {
+        return apptDate >= today && apptDate <= weekFromNow;
+      }
+      return true; // 'all'
+    });
+
+    if (filteredDocs.length === 0) {
+      appointmentsList.innerHTML = '<p class="text-gray-400">No hay citas en esta vista.</p>';
+      return;
+    }
+
+    filteredDocs.forEach((docSnap) => {
+      const appt = docSnap.data();
+      const dateObj = new Date(appt.date);
+      const formattedDate = dateObj.toLocaleDateString('es-ES', {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      const card = document.createElement('div');
+      card.className = 'bg-gray-700 rounded-lg p-4 shadow-md flex flex-col space-y-2';
+
+      card.innerHTML = `
+        <div class="flex justify-between items-center">
+          <span class="font-semibold text-blue-300"><i class="fa-solid fa-calendar-days mr-2"></i>${formattedDate}</span>
+          <span class="text-sm px-2 py-1 rounded-full text-white ${getTypeColor(appt.type)}">${appt.type || 'Sin tipo'}</span>
+        </div>
+        <p class="text-gray-300"><i class="fa-solid fa-location-dot mr-2"></i>${appt.location || 'Sin ubicación'}</p>
+        <p class="text-sm text-gray-400">${appt.notes || 'Sin notas'}</p>
+        <button class="delete-appointment text-sm text-red-400 hover:text-red-200 self-end" data-id="${docSnap.id}"><i class="fa-solid fa-trash mr-1"></i>Eliminar</button>
+      `;
+
+      appointmentsList.appendChild(card);
+    });
+
+    document.querySelectorAll('.delete-appointment').forEach(button => {
+      button.addEventListener('click', async (e) => {
+        const id = e.target.dataset.id;
+        if (confirm('¿Eliminar esta cita?')) {
+          try {
+            await deleteDoc(doc(db, 'appointments', id));
+          } catch (err) {
+            console.error('Error al eliminar cita:', err);
+            alert('Error al eliminar cita: ' + err.message);
+          }
+        }
+      });
+    });
+  });
+}
+
+// 🔁 Reescuchar al cambiar filtro de fecha
+filterDateSelect?.addEventListener('change', () => {
+  listenForAppointments();
+});
+
+
