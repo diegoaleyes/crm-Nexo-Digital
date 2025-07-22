@@ -1,4 +1,5 @@
 // public/js/dashboard.js
+let selectedClientName = null;
 
 // Importamos 'auth' y 'db' desde nuestro archivo firebase-config.js
 import { auth, db } from './firebase-config.js';
@@ -266,8 +267,7 @@ const storage = getStorage();
 document.querySelector('#upload-client-doc-btn')?.addEventListener('click', async () => {
   const fileInput = document.querySelector('#upload-client-doc');
   const file = fileInput?.files[0];
-  const clientId = window.activeClientId;
-
+  
 
   if (!file || !clientId) {
     alert('Selecciona un archivo PDF y asegurate de tener un cliente válido.');
@@ -338,15 +338,22 @@ if (logoutBtn) {
 // === NUEVO BLOQUE, AL FINAL DE dashboard.js ===
 async function createAppointment(clientId, date, type, location, notes) {
   try {
-    await addDoc(collection(db, 'appointments'), {
-      clientId,
-      businessId: currentBusinessId,
-      date,
-      type,
-      location,
-      notes,
-      createdAt: new Date()
-    });
+    console.log('Cita para:', selectedClientId, selectedClientName);
+
+  await addDoc(collection(db, 'appointments'), {
+  businessId: currentBusinessId,
+  clientId: selectedClientId,
+  clientName: selectedClientName, // ← esta línea debe existir y tener valor
+  date,
+  type,
+  location,
+  notes,
+  createdAt: new Date()
+});
+
+
+ console.log('Guardando cita con cliente:', selectedClientId, selectedClientName);
+
     alert('Cita guardada correctamente.');
   } catch (err) {
     console.error('Error al guardar cita:', err);
@@ -382,10 +389,10 @@ if (appointmentForm) {
     e.preventDefault();
 
     const clientId = appointmentClientId.value;
-    const date = appointmentForm.querySelector('#appointment-date').value;
-    const type = appointmentForm.querySelector('#appointment-type').value;
+    const date     = appointmentForm.querySelector('#appointment-date').value;
+    const type     = appointmentForm.querySelector('#appointment-type').value;
     const location = appointmentForm.querySelector('#appointment-location').value;
-    const notes = appointmentForm.querySelector('#appointment-notes').value;
+    const notes    = appointmentForm.querySelector('#appointment-notes').value;
 
     if (!clientId || !date) {
       alert('Completa los campos obligatorios.');
@@ -393,8 +400,11 @@ if (appointmentForm) {
     }
 
     try {
+      console.log('Cita → ID:', selectedClientId, 'Nombre:', selectedClientName); // para verificar
+
       await addDoc(collection(db, 'appointments'), {
-        clientId,
+        clientId: selectedClientId,
+        clientName: selectedClientName, // ✅ esta línea es clave
         businessId: currentBusinessId,
         date,
         type,
@@ -412,6 +422,7 @@ if (appointmentForm) {
     }
   });
 }
+
 // === AGENDA VISUAL MEJORADA ===
 
 const filterDateSelect   = document.querySelector('#filter-date');
@@ -487,6 +498,8 @@ function listenForAppointments() {
 
       card.innerHTML = `
         <div class="flex justify-between items-center">
+        <p class="text-blue-400"><i class="fa-solid fa-user mr-2"></i>${appt.clientName || 'Sin cliente'}</p>
+
           <span class="font-semibold text-blue-300"><i class="fa-solid fa-calendar-days mr-2"></i>${formattedDate}</span>
           <span class="text-sm px-2 py-1 rounded-full text-white ${getTypeColor(appt.type)}">${appt.type || 'Sin tipo'}</span>
         </div>
@@ -579,12 +592,21 @@ function listenForClients(businessId) {
         });
       });
 
-      document.querySelectorAll('.btn-appointment').forEach(button => {
-        button.addEventListener('click', (e) => {
-          const clientId = e.target.dataset.id;
-          openAppointmentPanel(clientId);
-        });
-      });
+     document.querySelectorAll('.btn-appointment').forEach(button => {
+  button.addEventListener('click', (e) => {
+    const clientId = e.target.dataset.id;
+    const row = e.target.closest('tr');
+    const clientName = row.querySelector('.client-name-link')?.textContent?.trim();
+
+    selectedClientId = clientId;
+    selectedClientName = clientName; // ← ¡Ahora sí estará definida!
+
+    openAppointmentPanel(clientId);
+    console.log('Cliente actual:', selectedClientId, selectedClientName);
+
+  });
+});
+
 
       document.querySelectorAll('.client-name-link').forEach(span => {
         span.addEventListener('click', (e) => {
@@ -594,4 +616,117 @@ function listenForClients(businessId) {
       });
     }
   });
+}
+// === Abrir panel de cita desde un evento del calendario ===
+async function openAppointmentPanelFromEvent(appointmentId) {
+  try {
+    // Referencia a la cita
+    const apptRef  = doc(db, 'appointments', appointmentId);
+const apptSnap = await getDoc(apptRef);
+if (!apptSnap.exists()) return alert('Cita no encontrada.');
+
+const appt = apptSnap.data();
+
+await updateDoc(apptRef, {
+  clientName: 'Juan Pérez' // ← Aquí actualizamos el documento
+});
+
+    // Mostrar panel y resetear form
+    appointmentPanel.classList.remove('translate-x-full');
+    appointmentForm.reset();
+
+    // Rellenar form con datos de la cita
+    appointmentClientId.value               = appt.clientId || '';
+    appointmentForm.querySelector('#appointment-date').value     = appt.date;
+    appointmentForm.querySelector('#appointment-type').value     = appt.type || '';
+    appointmentForm.querySelector('#appointment-location').value = appt.location || '';
+    appointmentForm.querySelector('#appointment-notes').value    = appt.notes || '';
+    appointmentForm.querySelector('#appointment-client-name').value = appt.clientName || '';
+  } catch (err) {
+    console.error('Error al cargar cita:', err);
+    alert('Error al cargar cita: ' + err.message);
+  }
+}
+
+// === FULLCALENDAR - Vista mensual editable ===
+// Asegúrate de que al inicio de tu archivo tengas:
+// import { Calendar } from 'https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.js';
+
+function renderMonthlyCalendar() {
+  const calendarEl = document.getElementById('fullcalendar');
+  if (!calendarEl || !currentBusinessId) return;
+
+  const calendar = new Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    headerToolbar: {
+      left:  'prev,next today',
+      center:'title',
+      right: ''
+    },
+    events: async (fetchInfo, success, failure) => {
+      try {
+        const qSnap = await getDocs(
+          query(
+            collection(db, 'appointments'),
+            where('businessId', '==', currentBusinessId),
+            orderBy('date', 'asc')
+          )
+        );
+        const evts = qSnap.docs.map(d => {
+          const a = d.data();
+          return {
+            id:            d.id,
+               title: `${a.clientName || 'Cliente'} — ${a.type} @ ${a.location}`,
+            start:         a.date,
+            backgroundColor: getEventColor(a.type, 'calendar'),
+
+            borderColor:  '#374151',
+            textColor:    '#fff'
+          };
+        });
+        success(evts);
+      } catch (e) {
+        console.error('Error loading calendar events:', e);
+        failure(e);
+      }
+    },
+    eventClick: info => {
+      openAppointmentPanelFromEvent(info.event.id);
+    },
+    dateClick: info => {
+      // Crear cita nueva en ese día
+      appointmentPanel.classList.remove('translate-x-full');
+      appointmentForm.reset();
+      appointmentClientId.value = '';
+      appointmentForm.querySelector('#appointment-date').value = info.dateStr;
+    }
+  });
+
+  calendar.render();
+}
+
+// Llamamos al calendario justo después de loguear al usuario
+onAuthStateChanged(auth, user => {
+  if (user) {
+    renderMonthlyCalendar();
+  }
+});
+
+// Helper para colores por tipo de cita
+// Helper unificado para colores
+function getEventColor(type, context = 'calendar') {
+  const maps = {
+    calendar: {
+      Reunión: '#10B981',
+      Llamada: '#F59E0B',
+      Visita:  '#8B5CF6'
+    },
+    list: {
+      Reunión: 'bg-green-700',
+      Llamada: 'bg-yellow-700',
+      Visita:  'bg-purple-700'
+    }
+  };
+
+  return maps[context][type] || (context === 'calendar' ? '#3B82F6' : 'bg-blue-700');
 }

@@ -9,7 +9,14 @@
 
     <title>Dashboard - NXDigital Gestor</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <script src="https://kit.fontawesome.com/67dbdd2b87.js" crossorigin="anonymous"></script>
+ 
+    <link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+  integrity="sha512-…"
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -398,8 +405,7 @@
         </div>
     </div>
 
-    <script type="" src="js/firebase-config.js"></script>
-    <script type="" src="js/dashboard.js"></script>
+  
 <!-- PANEL DESLIZANTE DE CITA -->
 <div id="appointment-panel" class="fixed top-0 right-0 h-full w-full max-w-md bg-gray-900 text-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50">
   <div class="p-6 flex flex-col h-full overflow-y-auto">
@@ -472,8 +478,6 @@
         </div>
     </div>
 
-    <script type="module" src="js/firebase-config.js"></script>
-<script type="module" src="js/dashboard.js"></script>
 
 <!-- PANEL DESLIZANTE DE CITA -->
 <div id="appointment-panel" class="fixed top-0 right-0 h-full w-full max-w-md bg-gray-900 text-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50">
@@ -545,6 +549,10 @@
         <!-- Citas del cliente se muestran aquí -->
       </div>
     </div>
+<section class="dashboard-section mt-12">
+  <h3 class="text-2xl font-semibold mb-6">🗓️ Vista Mensual de Citas</h3>
+  <div id="fullcalendar" class="bg-gray-800 p-4 rounded-lg text-white"></div>
+</section>
 
     <!-- Campañas -->
     <div class="mb-6">
@@ -555,6 +563,11 @@
     </div>
   </div>
 </div>
+<!-- Carga FullCalendar en window.FullCalendar -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.js"></script>
+
+<script type="module" src="js/firebase-config.js"></script>
+<script type="module" src="js/dashboard.js"></script>
 
 </body>
 </html>
