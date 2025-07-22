@@ -574,6 +574,25 @@ function listenForClients(businessId) {
         `;
 
         clientsTableBody.appendChild(row);
+        // Conectar buscador por nombre o DNI
+const searchInput = document.querySelector('#search-client-input');
+
+searchInput?.addEventListener('input', () => {
+  const term = searchInput.value.toLowerCase();
+
+  document.querySelectorAll('#clients-table-body tr').forEach(row => {
+    const name = row.querySelector('.client-name-link')?.textContent?.toLowerCase() || '';
+    const dniCell = row.querySelector('[data-dni]');
+    const dni = dniCell?.textContent?.toLowerCase() || '';
+
+    if (name.includes(term) || dni.includes(term)) {
+      row.classList.remove('hidden');
+    } else {
+      row.classList.add('hidden');
+    }
+  });
+});
+
       });
 
       document.querySelectorAll('.btn-edit').forEach(button => {
