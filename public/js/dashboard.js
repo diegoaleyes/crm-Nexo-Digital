@@ -569,7 +569,10 @@ function listenForClients(businessId) {
           <td class="py-3 px-4 border-b border-gray-200 text-center flex justify-center space-x-3">
             <button class="btn-edit text-blue-400 hover:text-blue-200 text-sm font-semibold" data-id="${clientId}">Editar</button>
             <button class="btn-appointment text-green-400 hover:text-green-200 text-sm font-semibold" data-id="${clientId}">Agendar</button>
-            <button class="btn-delete text-red-400 hover:text-red-200 text-sm font-semibold" data-id="${clientId}">Eliminar</button>
+            <button class="btn-delete text-red-400 hover:text-red-200 text-xl" data-id="${clientId}" title="Eliminar cliente">
+  <i class="fa-solid fa-xmark"></i>
+</button>
+
           </td>
         `;
 
@@ -749,3 +752,34 @@ function getEventColor(type, context = 'calendar') {
 
   return maps[context][type] || (context === 'calendar' ? '#3B82F6' : 'bg-blue-700');
 }
+document.querySelector('#export-clients-btn')?.addEventListener('click', () => {
+  const rows = document.querySelectorAll('#clients-table-body tr:not(.hidden)');
+  if (rows.length === 0) {
+    alert('No hay clientes visibles para exportar.');
+    return;
+  }
+
+  const headers = ['Nombre', 'Email', 'Teléfono', 'Empresa', 'Notas'];
+  let csvContent = headers.join(',') + '\n';
+
+  rows.forEach(row => {
+    const cols = row.querySelectorAll('td');
+    const values = [
+      cols[0]?.textContent?.trim(), // nombre
+      cols[1]?.textContent?.trim(), // email
+      cols[2]?.textContent?.trim(), // teléfono
+      cols[3]?.textContent?.trim(), // empresa
+      cols[4]?.textContent?.trim()  // notas
+    ];
+    csvContent += values.join(',') + '\n';
+  });
+
+  // Descarga
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'clientes_exportados.csv';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+});

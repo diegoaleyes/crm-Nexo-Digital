@@ -321,6 +321,7 @@
 </div>
 
 
+
             <div class="overflow-x-auto rounded-lg"> <table class="min-w-full client-table">
                    <thead>
                         <tr>
@@ -338,7 +339,19 @@
                             </td>
                         </tr>
                     </tbody>
+
                 </table>
+                <div class="flex justify-end mt-2">
+  <button
+    id="export-clients-btn"
+    class="text-sm text-gray-400 hover:text-white flex items-center gap-2 transition duration-200"
+    title="Exportar clientes visibles como CSV"
+  >
+    <i class="fa-solid fa-file-export text-blue-400"></i>
+    Exportar CSV
+  </button>
+</div>
+
             </div>
             <p id="no-clients-message" class="text-center mt-4 hidden">No hay clientes registrados aún. ¡Añade el primero!</p>
         </section>

@@ -77,3 +77,27 @@ button:hover {
   color: #9ca3af;
   pointer-events: none;
 }
+.delete-appointment {
+  transition: transform 0.2s ease;
+}
+
+.delete-appointment:hover {
+  transform: scale(1.15);
+}
+.btn-delete {
+  transition: transform 0.2s ease;
+}
+
+.btn-delete:hover {
+  transform: scale(1.2);
+}
+#export-clients-btn {
+  font-weight: normal;
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.375rem;
+}
+
+#export-clients-btn:hover {
+  color: white;
+  background-color: transparent;
+}
