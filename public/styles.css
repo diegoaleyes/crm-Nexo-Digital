@@ -1,0 +1,79 @@
+/* styles.css */
+
+tr {
+  transition: opacity 0.3s ease;
+}
+
+tr.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Cambia color de placeholder */
+::placeholder {
+  color: #9ca3af; /* gris suave */
+}
+
+/* Animación sutil al enfocar input */
+input:focus {
+  box-shadow: 0 0 0 2px #3b82f6; /* azul Tailwind */
+}
+/* Suaviza la aparición/desaparición de filas de clientes */
+tr {
+  transition: opacity 0.3s ease;
+}
+
+tr.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Estilo para el placeholder del buscador */
+::placeholder {
+  color: #9ca3af; /* Tailwind: text-gray-400 */
+}
+
+/* Efecto al enfocar el input de búsqueda */
+#search-client-input:focus {
+  box-shadow: 0 0 0 2px #3b82f6;
+  transition: box-shadow 0.3s ease;
+}
+
+/* Animación suave en botones */
+button {
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+  transform: scale(1.02);
+}
+
+/* Resaltar celdas al pasar el mouse sobre una fila */
+.client-table tr:hover {
+  background-color: #1f2937; /* gris más claro dentro del esquema oscuro */
+}
+
+/* Icono de búsqueda si lo usás con FontAwesome */
+.search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 0.65rem;
+  color: #9ca3af;
+}
+
+/* Estilos personalizados para tarjetas de cita */
+.appointment-card {
+  transition: box-shadow 0.3s ease;
+}
+
+.appointment-card:hover {
+  box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+}
+.search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 0.65rem;
+  font-size: 1rem;
+  color: #9ca3af;
+  pointer-events: none;
+}

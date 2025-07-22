@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <link rel="stylesheet" href="styles.css">
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- FullCalendar CDN -->
@@ -309,14 +310,16 @@
                 <button id="open-add-client-modal-btn" class="btn-firebase">Añadir Nuevo Cliente</button>
             </div>
 <!-- Buscador de clientes por nombre o DNI -->
-<div class="mb-6">
+<div class="relative mb-6 w-full max-w-md">
   <input
     type="text"
     id="search-client-input"
     placeholder="Buscar por nombre o DNI..."
-    class="w-full max-w-md px-4 py-2 rounded-md bg-gray-800 text-white border border-gray-600 focus:outline-none focus:ring focus:border-blue-400"
+    class="w-full px-10 py-2 rounded-md bg-gray-800 text-white border border-gray-600 focus:outline-none focus:ring focus:border-blue-400"
   />
+  <i class="fa-solid fa-magnifying-glass search-icon"></i>
 </div>
+
 
             <div class="overflow-x-auto rounded-lg"> <table class="min-w-full client-table">
                    <thead>
